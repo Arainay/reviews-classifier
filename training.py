@@ -1,7 +1,6 @@
 import torch
 import torch.optim as optim
 from torch import nn
-from tqdm import notebook
 
 from ReviewClassifier import ReviewClassifier
 from ReviewDataset import ReviewDataset
@@ -27,23 +26,10 @@ optimizer = optim.Adam(classifier.parameters(), lr=args.learning_rate)
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode='min', factor=0.5, patience=1)
 
 train_state = make_train_state(args)
-epoch_bar = notebook.tqdm(desc='training routine', total=args.num_epoch, position=0)
 
 dataset.set_split('train')
-train_bar = notebook.tqdm(
-    desc='split=train',
-    total=dataset.get_num_batches(args.batch_size),
-    position=1,
-    leave=True
-)
 
 dataset.set_split('val')
-val_bar = notebook.tqdm(
-    desc='split=val',
-    total=dataset.get_num_batches(args.batch_size),
-    position=1,
-    leave=True
-)
 
 try:
     for epoch_index in range(args.num_epoch):
@@ -81,13 +67,6 @@ try:
             acc_t = compute_accuracy(y_pred, batch_dict['y_target'])
             running_acc += (acc_t - running_acc) / (batch_index + 1)
 
-            train_bar.set_postfix(
-                loss=running_loss,
-                acc=running_acc,
-                epoch=epoch_index
-            )
-            train_bar.update()
-
         train_state['val_loss'].append(running_loss)
         train_state['val_acc'].append(running_acc)
 
@@ -95,16 +74,8 @@ try:
 
         scheduler.step(train_state['val_loss'][-1])
 
-        train_bar.n = 0
-        val_bar.n = 0
-        epoch_bar.update()
-
         if train_state['stop_early']:
             break
-
-        train_bar.n = 0
-        val_bar.n = 0
-        epoch_bar.update()
 except KeyboardInterrupt:
     print('Exiting loop')
 
