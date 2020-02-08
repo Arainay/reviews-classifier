@@ -27,10 +27,6 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, mode='min'
 
 train_state = make_train_state(args)
 
-dataset.set_split('train')
-
-dataset.set_split('val')
-
 try:
     for epoch_index in range(args.num_epoch):
         train_state['epoch_index'] = epoch_index
@@ -113,15 +109,3 @@ train_state['test_acc'] = running_acc
 
 print("Test loss: {:.3f}".format(train_state['test_loss']))
 print("Test Accuracy: {:.2f}".format(train_state['test_acc']))
-
-
-test_review = 'this is a pretty awesome book'
-
-classifier = classifier.cpu()
-prediction = predict_rating(
-    test_review,
-    classifier,
-    vectorizer,
-    decision_threshold=0.5
-)
-print("{} => {}".format(test_review, prediction))
